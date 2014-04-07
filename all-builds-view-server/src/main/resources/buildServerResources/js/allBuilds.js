@@ -1,8 +1,20 @@
 (function () {
-    var buildsPerPage = 20;
+    var buildsPerPage = 50;
     var shownBuildsCount = 0;
 
     $j(document).ready(function () {
+
+        function displayShownBuildsCount() {
+            $j("#buildsListSummary").text("Last " + shownBuildsCount + " builds are shown.");
+        }
+
+        function displayNoBuildsFound() {
+            $j("#buildsListSummary").text("There are no builds yet.");
+        }
+
+        function showBuildsTable() {
+            $j("#buildsList").show();
+        }
 
         function createBuildRow(build) {
             return '' +
@@ -16,11 +28,11 @@
         }
 
         function insertToTheEndOfTable(build) {
-            $j("#buildsList>tbody").append(createBuildRow(build))
+            $j("#buildsTable>tbody").append(createBuildRow(build))
         }
 
         function insertToTheTopOfTable(build) {
-            $j("#buildsList>tbody>tr:first").before(createBuildRow(build))
+            $j("#buildsTable>tbody").prepend(createBuildRow(build))
         }
 
         function changeBuildStatus(build) {
@@ -28,26 +40,34 @@
         }
 
         function removeLastRow() {
-            $j("#buildsList>tbody>tr:last").remove();
+            $j("#buildsTable>tbody>tr:last").remove();
         }
 
-        function loadBuilds() {
+        function loadCurrentBuilds() {
             $j.getJSON("/httpAuth/app/rest/builds/?" +
                 "fields=count,build(number,statusText,buildType,agent,webUrl)" +
                 "&locator=running:any,personal:any,canceled:any,count:" + buildsPerPage, function (data) {
-                shownBuildsCount = data.count;
-                for (var i = 0; i < data.count; i++) {
-                    insertToTheEndOfTable(data.build[i]);
+                if (data.count == 0) {
+                    displayNoBuildsFound();
+                } else {
+                    shownBuildsCount = data.count;
+                    displayShownBuildsCount();
+                    showBuildsTable();
+                    for (var i = 0; i < data.count; i++) {
+                        insertToTheEndOfTable(data.build[i]);
+                    }
                 }
             })
         }
 
         function insertNewBuild(build) {
+            showBuildsTable();
             if (shownBuildsCount >= buildsPerPage) {
                 removeLastRow();
             } else {
                 shownBuildsCount++;
             }
+            displayShownBuildsCount();
             insertToTheTopOfTable(build);
         }
 
@@ -61,7 +81,7 @@
 
         atmosphereRequest.onOpen = function (response) {
             console.log('Atmosphere connected using ' + response.transport);
-            loadBuilds();
+            loadCurrentBuilds();
         };
 
         atmosphereRequest.onMessage = function (response) {

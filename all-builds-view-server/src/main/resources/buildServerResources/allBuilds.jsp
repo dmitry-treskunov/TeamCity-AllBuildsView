@@ -3,8 +3,10 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ include file="/include.jsp" %>
 
-<div>
-    <table id="buildsList" class="buildsListTable">
+<div id="buildsListSummary">
+</div>
+<div id="buildsList" style="display: none;">
+    <table id="buildsTable" class="buildsListTable">
         <thead>
         <tr>
             <th></th>
