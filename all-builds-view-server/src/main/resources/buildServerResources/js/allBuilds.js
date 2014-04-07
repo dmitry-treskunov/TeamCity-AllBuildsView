@@ -7,12 +7,12 @@
         function createBuildRow(build) {
             return '' +
                 '<tr id="build_' + build.id + '">' +
-                '<td>' + build.number + '</td> ' +
-                '<td>' + build.buildTypeId + '</td> ' +
-                '<td>' + build.status + '</td> ' +
-                '<td id="buildState_' + build.id + '">' + build.state + '</td> ' +
+                    '<td>#' + build.number + '</td> ' +
+                    '<td><a href=/project.html?projectId=' + build.buildType.projectId + '>' + build.buildType.projectName + '</a></td> ' +
+                    '<td><a href=/viewType.html?buildTypeId=' + build.buildType.id + '>' + build.buildType.name + '</a></td> ' +
+                    '<td><a href=/agentDetails.html?agentTypeId=' + build.agent.typeId + '&id=' + build.agent.typeId + '>' + build.agent.name + '</a></td> ' +
+                    '<td id="buildStatus_' + build.id + '">' + build.statusText + '</td> ' +
                 '</tr>'
-
         }
 
         function insertToTheEndOfTable(build) {
@@ -23,8 +23,8 @@
             $j("#buildsList>tbody>tr:first").before(createBuildRow(build))
         }
 
-        function changeBuildState(build) {
-            $j("#buildState_" + build.id).text(build.state);
+        function changeBuildStatus(build) {
+            $j("#buildStatus_" + build.id).text(build.statusText);
         }
 
         function removeLastRow() {
@@ -32,7 +32,9 @@
         }
 
         function loadBuilds() {
-            $j.getJSON("/httpAuth/app/rest/builds/?locator=count:" + buildsPerPage, function (data) {
+            $j.getJSON("/httpAuth/app/rest/builds/?" +
+                "fields=count,build(number,statusText,buildType,agent,webUrl)" +
+                "&locator=running:any,personal:any,canceled:any,count:" + buildsPerPage, function (data) {
                 shownBuildsCount = data.count;
                 for (var i = 0; i < data.count; i++) {
                     insertToTheEndOfTable(data.build[i]);
@@ -64,10 +66,10 @@
 
         atmosphereRequest.onMessage = function (response) {
             var message = JSON.parse(response.responseBody);
-            if (message.type === 'started') {
+            if (message.type === 'buildStarted') {
                 insertNewBuild(message.build);
-            } else if (message.type === 'finished') {
-                changeBuildState(message.build);
+            } else if (message.type === 'statusUpdated') {
+                changeBuildStatus(message.build);
 
             }
         };

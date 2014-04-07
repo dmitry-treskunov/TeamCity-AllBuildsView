@@ -7,10 +7,11 @@
     <table id="buildsList" class="buildsListTable">
         <thead>
         <tr>
-            <th>#</th>
-            <th>Build Type Id</th>
+            <th></th>
+            <th>Project Name</th>
+            <th>Build Type</th>
+            <th>Agent</th>
             <th>Status</th>
-            <th>State</th>
         </tr>
         </thead>
         <tbody>

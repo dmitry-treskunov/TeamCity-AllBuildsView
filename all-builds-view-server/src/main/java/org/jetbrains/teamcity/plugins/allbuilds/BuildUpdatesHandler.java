@@ -54,32 +54,41 @@ public class BuildUpdatesHandler implements AtmosphereHandler {
         }
 
         @Override
+        public void buildInterrupted(@NotNull SRunningBuild build) {
+            BroadcasterFactory.getDefault().lookup("buildsUpdates").broadcast(createUpdateStatusJson(build));
+        }
+
+        @Override
         public void buildFinished(@NotNull SRunningBuild build) {
-            BroadcasterFactory.getDefault().lookup("buildsUpdates").broadcast(createBuildFinishedJson(build));
+            BroadcasterFactory.getDefault().lookup("buildsUpdates").broadcast(createUpdateStatusJson(build));
         }
 
         private String createNewBuildJson(SRunningBuild build) {
-            return "{\"type\":\"started\"," +
-                    "\"build\":" +
-                    "{" +
-                    "\"id\":" + build.getBuildId() + "," +
-                    "\"buildTypeId\":\"" + build.getBuildTypeExternalId() + "\"," +
-                    "\"number\":\"" + build.getBuildNumber() + "\"," +
-                    "\"status\":\"" + build.getStatusDescriptor().getStatus().getText() + "\"," +
-                    "\"state\":\"running\"" +
-                    "}" +
+            return "{" +
+                        "\"type\":\"buildStarted\"," +
+                        "\"build\":{" +
+                            "\"id\":" + build.getBuildId() + "," +
+                            "\"number\":\"" + build.getBuildNumber() + "\"," +
+                            "\"buildType\":{" +
+                                "\"projectName\":\"" + build.getBuildType().getProjectName() + "\"," +
+                                "\"name\":\"" + build.getBuildTypeName() + "\"" +
+                            "}," +
+                            "\"agent\":{" +
+                                    "\"name\":\"" + build.getAgentName() + "\"" +
+                                "}," +
+                            "\"statusText\":\"" + build.getStatusDescriptor().getText() + "\"" +
+                        "}" +
                     "}";
 
         }
 
-        private String createBuildFinishedJson(SRunningBuild build) {
-            return "{\"type\":\"finished\"," +
-                    "\"build\":" +
-                    "{" +
-                    "\"id\":" + build.getBuildId() + "," +
-                    "\"status\":\"" + build.getStatusDescriptor().getStatus().getText() + "\"," +
-                    "\"state\":\"finished\"" +
-                    "}" +
+        private String createUpdateStatusJson(SRunningBuild build) {
+            return "{" +
+                        "\"type\":\"statusUpdated\"," +
+                        "\"build\":{" +
+                            "\"id\":" + build.getBuildId() + "," +
+                            "\"statusText\":\"" + build.getStatusDescriptor().getText() + "\"" +
+                        "}" +
                     "}";
         }
     }
