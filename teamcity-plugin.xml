@@ -7,5 +7,5 @@
         <version>@Version@</version>
         <description>Single view with all TeamCity builds</description>
     </info>
-    <deployment use-separate-classloader="true"/>
+    <deployment use-separate-classloader="false"/>
 </teamcity-plugin>
