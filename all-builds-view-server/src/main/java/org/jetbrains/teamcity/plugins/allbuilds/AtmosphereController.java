@@ -29,6 +29,7 @@ public class AtmosphereController extends BaseController {
     @Nullable
     @Override
     protected ModelAndView doHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response) throws Exception {
+        request.setAttribute("org.apache.catalina.ASYNC_SUPPORTED", Boolean.TRUE);
         atmosphereFramework.doCometSupport(AtmosphereRequest.wrap(request), AtmosphereResponse.wrap(response));
         return null;
     }
