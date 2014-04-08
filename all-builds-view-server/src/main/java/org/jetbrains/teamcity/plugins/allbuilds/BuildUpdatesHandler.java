@@ -1,5 +1,6 @@
 package org.jetbrains.teamcity.plugins.allbuilds;
 
+import jetbrains.buildServer.messages.BuildMessage1;
 import jetbrains.buildServer.messages.Status;
 import jetbrains.buildServer.serverSide.BuildServerAdapter;
 import jetbrains.buildServer.serverSide.BuildServerListener;
@@ -51,22 +52,34 @@ public class BuildUpdatesHandler implements AtmosphereHandler {
     private class BuildsNotificationsListener extends BuildServerAdapter {
         @Override
         public void buildStarted(@NotNull SRunningBuild build) {
-            BroadcasterFactory.getDefault().lookup("buildsUpdates").broadcast(createNewBuildJson(build));
+            broadcast(createNewBuildJson(build));
         }
 
         @Override
         public void buildChangedStatus(@NotNull SRunningBuild build, Status oldStatus, Status newStatus) {
-            BroadcasterFactory.getDefault().lookup("buildsUpdates").broadcast(createUpdateStatusJson(build, "running"));
+            broadcast(createUpdateStatusJson(build, "running"));
+        }
+
+        @Override
+        public void messageReceived(@NotNull SRunningBuild build, @NotNull BuildMessage1 message) {
+            broadcast(createUpdateStatusJson(build, "running"));
         }
 
         @Override
         public void buildInterrupted(@NotNull SRunningBuild build) {
-            BroadcasterFactory.getDefault().lookup("buildsUpdates").broadcast(createUpdateStatusJson(build, "finished"));
+            broadcast(createUpdateStatusJson(build, "finished"));
         }
 
         @Override
         public void buildFinished(@NotNull SRunningBuild build) {
-            BroadcasterFactory.getDefault().lookup("buildsUpdates").broadcast(createUpdateStatusJson(build, "finished"));
+            broadcast(createUpdateStatusJson(build, "finished"));
+        }
+
+        private void broadcast(String message) {
+            Broadcaster broadcaster = BroadcasterFactory.getDefault().lookup("buildsUpdates");
+            if (broadcaster != null) {
+                broadcaster.broadcast(message);
+            }
         }
 
         private String createNewBuildJson(SRunningBuild build) {
