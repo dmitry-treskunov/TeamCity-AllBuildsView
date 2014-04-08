@@ -1,5 +1,6 @@
 package org.jetbrains.teamcity.plugins.allbuilds;
 
+import jetbrains.buildServer.messages.Status;
 import jetbrains.buildServer.serverSide.BuildServerAdapter;
 import jetbrains.buildServer.serverSide.BuildServerListener;
 import jetbrains.buildServer.serverSide.SRunningBuild;
@@ -54,13 +55,18 @@ public class BuildUpdatesHandler implements AtmosphereHandler {
         }
 
         @Override
+        public void buildChangedStatus(@NotNull SRunningBuild build, Status oldStatus, Status newStatus) {
+            BroadcasterFactory.getDefault().lookup("buildsUpdates").broadcast(createUpdateStatusJson(build, "running"));
+        }
+
+        @Override
         public void buildInterrupted(@NotNull SRunningBuild build) {
-            BroadcasterFactory.getDefault().lookup("buildsUpdates").broadcast(createUpdateStatusJson(build));
+            BroadcasterFactory.getDefault().lookup("buildsUpdates").broadcast(createUpdateStatusJson(build, "finished"));
         }
 
         @Override
         public void buildFinished(@NotNull SRunningBuild build) {
-            BroadcasterFactory.getDefault().lookup("buildsUpdates").broadcast(createUpdateStatusJson(build));
+            BroadcasterFactory.getDefault().lookup("buildsUpdates").broadcast(createUpdateStatusJson(build, "finished"));
         }
 
         private String createNewBuildJson(SRunningBuild build) {
@@ -76,18 +82,22 @@ public class BuildUpdatesHandler implements AtmosphereHandler {
                             "\"agent\":{" +
                                     "\"name\":\"" + build.getAgentName() + "\"" +
                                 "}," +
-                            "\"statusText\":\"" + build.getStatusDescriptor().getText() + "\"" +
+                            "\"statusText\":\"" + build.getStatusDescriptor().getText().replace("\"", "\\\"") + "\"," +
+                            "\"status\":\"" + build.getStatusDescriptor().getStatus().getText() + "\"," +
+                            "\"state\":\"running\"" +
                         "}" +
                     "}";
 
         }
 
-        private String createUpdateStatusJson(SRunningBuild build) {
+        private String createUpdateStatusJson(SRunningBuild build, String state) {
             return "{" +
                         "\"type\":\"statusUpdated\"," +
                         "\"build\":{" +
                             "\"id\":" + build.getBuildId() + "," +
-                            "\"statusText\":\"" + build.getStatusDescriptor().getText() + "\"" +
+                            "\"statusText\":\"" + build.getStatusDescriptor().getText().replace("\"", "\\\"") + "\"," +
+                            "\"status\":\"" + build.getStatusDescriptor().getStatus().getText() + "\"," +
+                            "\"state\":\"" + state + "\"" +
                         "}" +
                     "}";
         }

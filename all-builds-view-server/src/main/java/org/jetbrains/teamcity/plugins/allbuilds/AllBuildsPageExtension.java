@@ -14,6 +14,7 @@ public class AllBuildsPageExtension extends AdminPage {
         setIncludeUrl(pluginDescriptor.getPluginResourcesPath("allBuilds.jsp"));
         setTabTitle("Builds list");
         addJsFile(pluginDescriptor.getPluginResourcesPath("lib/atmosphere.js"));
+        addJsFile(pluginDescriptor.getPluginResourcesPath("js/allBuildsView.js"));
         addJsFile(pluginDescriptor.getPluginResourcesPath("js/allBuilds.js"));
         addCssFile(pluginDescriptor.getPluginResourcesPath("css/allBuilds.css"));
         register();
