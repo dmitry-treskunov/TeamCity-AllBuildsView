@@ -55,7 +55,14 @@ var allBuildsView = function () {
 
         $j('<td></td>').text(createFinishDateText(build)).attr({id: 'buildFinishDate_' + build.id}).appendTo(row);
 
-        $j('<td></td>').text(build.statusText).attr({id: 'buildStatus_' + build.id }).prepend(createBuildsStatusIcon(build)).appendTo(row);
+        var buildLink = $j('<a></a>').
+            text(build.statusText).
+            attr( {
+                href: window['base_uri'] + '/viewLog.html?buildId=' + build.id + '&buildTypeId=' + build.buildType.id ,
+                id: 'buildStatus_' + build.id
+            }).
+            prepend(createBuildsStatusIcon(build));
+        $j('<td></td>').prepend(buildLink).appendTo(row);
 
         return row;
     }
