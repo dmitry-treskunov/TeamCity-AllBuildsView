@@ -61,7 +61,7 @@ public class BuildUpdateMessage {
         public abstract String createBuildJson(SRunningBuild build);
 
         String formatDate(Date date) {
-            return new SimpleDateFormat("YYYYMMdd'T'HHmmssZ").format(date);
+            return new SimpleDateFormat("yyyyMMdd'T'HHmmssZ").format(date);
         }
 
         String escape(String str) {
