@@ -19,7 +19,7 @@
             }
 
             $j.getJSON("/httpAuth/app/rest/builds/?" +
-                "fields=count,build(id,number,state,status,statusText,buildType,agent,webUrl)" +
+                "fields=count,build(id,number,startDate,finishDate,state,status,statusText,buildType,agent,webUrl)" +
                 "&locator=running:any,personal:any,canceled:any,count:" + buildsPerPage, processLoadedBuilds)
         }
 
@@ -49,11 +49,14 @@
         };
 
         atmosphereRequest.onMessage = function (response) {
+            console.log(response.responseBody);
             var message = JSON.parse(response.responseBody);
             if (message.type === 'STARTED') {
                 processNewBuild(message.build);
-            } else if (message.type === 'UPDATED' || message.type === 'FINISHED') {
+            } else if (message.type === 'UPDATED') {
                 view.changeBuildStatus(message.build);
+            } else if (message.type === 'FINISHED') {
+                view.showBuildFinished(message.build);
             }
         };
 

@@ -13,6 +13,8 @@
             <th>Project Name</th>
             <th>Build Type</th>
             <th>Agent</th>
+            <th>Start Date</th>
+            <th>Finish Date</th>
             <th>Status</th>
         </tr>
         </thead>

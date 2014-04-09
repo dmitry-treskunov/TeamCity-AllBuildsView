@@ -28,6 +28,18 @@ var allBuildsView = function () {
         });
     }
 
+    function formatDate(date) {
+        return moment(date, "YYYYMMDDThhmmss Z").format("DD MMM YY hh:mm");
+    }
+
+    function createFinishDateText(build) {
+        if (build.finishDate) {
+            return formatDate(build.finishDate);
+        } else {
+            return "Not finished yet";
+        }
+    }
+
     function createBuildRow(build) {
         var row = $j('<tr></tr>').attr({ id: 'build_' + build.id});
         $j('<td></td>').text('#' + build.number).appendTo(row);
@@ -40,6 +52,10 @@ var allBuildsView = function () {
 
         var agentLink = $j('<a></a>').text(build.agent.name).attr( {href: window['base_uri'] + '/agentDetails.html?agentTypeId=' + build.agent.typeId + '&id=' + build.agent.typeId });
         $j('<td></td>').prepend(agentLink).appendTo(row);
+
+        $j('<td></td>').text(formatDate(build.startDate)).appendTo(row);
+
+        $j('<td></td>').text(createFinishDateText(build)).attr({id: 'buildFinishDate_' + build.id}).appendTo(row);
 
         $j('<td></td>').text(build.statusText).attr({id: 'buildStatus_' + build.id }).prepend(createBuildsStatusIcon(build)).appendTo(row);
 
@@ -71,6 +87,11 @@ var allBuildsView = function () {
 
         changeBuildStatus: function (build) {
             $j("#buildStatus_" + build.id).text(build.statusText).prepend(createBuildsStatusIcon(build));
+        },
+
+        showBuildFinished: function (build) {
+            this.changeBuildStatus(build);
+            $j("#buildFinishDate_" + build.id).text(createFinishDateText(build));
         },
 
         removeLastRow: function () {

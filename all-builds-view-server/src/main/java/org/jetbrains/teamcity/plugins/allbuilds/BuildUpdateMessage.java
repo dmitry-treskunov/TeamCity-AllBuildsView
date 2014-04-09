@@ -2,6 +2,9 @@ package org.jetbrains.teamcity.plugins.allbuilds;
 
 import jetbrains.buildServer.serverSide.SRunningBuild;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class BuildUpdateMessage {
 
     public enum UpdateType {
@@ -12,6 +15,7 @@ public class BuildUpdateMessage {
                         "{" +
                             "\"id\":" + build.getBuildId() + "," +
                             "\"number\":\"" + build.getBuildNumber() + "\"," +
+                            "\"startDate\":\"" + formatDate(build.getStartDate()) + "\"," +
                             "\"buildType\":{" +
                                 "\"projectName\":\"" + build.getBuildType().getProjectName() + "\"," +
                                 "\"name\":\"" + build.getBuildTypeName() + "\"" +
@@ -34,6 +38,7 @@ public class BuildUpdateMessage {
                             "\"id\":" + build.getBuildId() + "," +
                             "\"statusText\":\"" + build.getStatusDescriptor().getText().replace("\"", "\\\"") + "\"," +
                             "\"status\":\"" + build.getStatusDescriptor().getStatus().getText() + "\"," +
+                            "\"finishDate\":\"" + formatDate(new Date()) + "\"," +
                             "\"state\":\"finished\"" +
                         "}";
             }
@@ -53,6 +58,10 @@ public class BuildUpdateMessage {
         };
 
         public abstract String createBuildJson(SRunningBuild build);
+
+        String formatDate(Date date) {
+            return new SimpleDateFormat("YYYYMMdd'T'HHmmssZ").format(date);
+        }
     }
 
     private UpdateType type;
