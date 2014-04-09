@@ -10,8 +10,7 @@
         <thead>
         <tr>
             <th></th>
-            <th>Project Name</th>
-            <th>Build Type</th>
+            <th>Build Configuration</th>
             <th>Agent</th>
             <th>Start Date</th>
             <th>Finish Date</th>

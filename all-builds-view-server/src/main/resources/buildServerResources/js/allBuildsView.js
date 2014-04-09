@@ -45,10 +45,8 @@ var allBuildsView = function () {
         $j('<td></td>').text('#' + build.number).appendTo(row);
 
         var projectLink = $j('<a></a>').text(build.buildType.projectName).attr( {href: window['base_uri'] + '/project.html?projectId=' + build.buildType.projectId });
-        $j('<td></td>').prepend(projectLink).appendTo(row);
-
         var buildTypeLink = $j('<a></a>').text(build.buildType.name).attr( {href: window['base_uri'] + '/viewType.html?buildTypeId=' + build.buildType.id });
-        $j('<td></td>').prepend(buildTypeLink).appendTo(row);
+        $j('<td></td>').append(projectLink).append(' :: ').append(buildTypeLink).appendTo(row);
 
         var agentLink = $j('<a></a>').text(build.agent.name).attr( {href: window['base_uri'] + '/agentDetails.html?agentTypeId=' + build.agent.typeId + '&id=' + build.agent.typeId });
         $j('<td></td>').prepend(agentLink).appendTo(row);
