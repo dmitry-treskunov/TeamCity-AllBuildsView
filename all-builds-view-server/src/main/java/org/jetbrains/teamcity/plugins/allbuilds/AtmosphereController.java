@@ -48,6 +48,8 @@ public class AtmosphereController extends BaseController {
         atmosphereFramework.addAtmosphereHandler("/", buildUpdatesHandler, interceptors);
         atmosphereFramework.addInitParameter(ApplicationConfig.BROADCASTER_SHARABLE_THREAD_POOLS, "true");
         atmosphereFramework.addInitParameter(ApplicationConfig.BROADCASTER_LIFECYCLE_POLICY, "EMPTY");
+        atmosphereFramework.addInitParameter(ApplicationConfig.BROADCASTER_MESSAGE_PROCESSING_THREADPOOL_MAXSIZE, "10");
+        atmosphereFramework.addInitParameter(ApplicationConfig.BROADCASTER_ASYNC_WRITE_THREADPOOL_MAXSIZE, "10");
         atmosphereFramework.addInitParameter(ApplicationConfig.BROADCAST_FILTER_CLASSES, PreventFrequentMessagesFilter.class.getName());
         atmosphereFramework.addInitParameter(ApplicationConfig.BROADCASTER_CACHE, UUIDBroadcasterCache.class.getName());
         atmosphereFramework.init();
