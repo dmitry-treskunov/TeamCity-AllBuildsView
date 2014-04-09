@@ -18,7 +18,7 @@
                 }
             }
 
-            $j.getJSON("/httpAuth/app/rest/builds/?" +
+            $j.getJSON(window['base_uri'] + "/httpAuth/app/rest/builds/?" +
                 "fields=count,build(id,number,startDate,finishDate,state,status,statusText,buildType,agent,webUrl)" +
                 "&locator=running:any,personal:any,canceled:any,count:" + buildsPerPage, processLoadedBuilds)
         }
@@ -34,7 +34,7 @@
         }
 
         var atmosphereRequest = {
-            url: '/subscribeToBuildsUpdate.html',
+            url: window['base_uri'] + '/subscribeToBuildsUpdate.html',
             contentType: "application/json",
             logLevel: 'debug',
             shared: true,
