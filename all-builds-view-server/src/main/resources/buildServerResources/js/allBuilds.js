@@ -37,6 +37,7 @@
             url: '/subscribeToBuildsUpdate.html',
             contentType: "application/json",
             logLevel: 'debug',
+            shared: true,
             transport: "websocket",
             fallbackTransport: 'long-polling'
         };
@@ -48,11 +49,10 @@
 
         atmosphereRequest.onMessage = function (response) {
             var message = JSON.parse(response.responseBody);
-            if (message.type === 'buildStarted') {
+            if (message.type === 'STARTED') {
                 processNewBuild(message.build);
-            } else if (message.type === 'statusUpdated') {
+            } else if (message.type === 'UPDATED' || message.type === 'FINISHED') {
                 view.changeBuildStatus(message.build);
-
             }
         };
 
