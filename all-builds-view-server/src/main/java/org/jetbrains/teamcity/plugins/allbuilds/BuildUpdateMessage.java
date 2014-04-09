@@ -1,6 +1,7 @@
 package org.jetbrains.teamcity.plugins.allbuilds;
 
 import jetbrains.buildServer.serverSide.SRunningBuild;
+import org.atmosphere.util.StringEscapeUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -17,14 +18,14 @@ public class BuildUpdateMessage {
                             "\"number\":\"" + build.getBuildNumber() + "\"," +
                             "\"startDate\":\"" + formatDate(build.getStartDate()) + "\"," +
                             "\"buildType\":{" +
-                                "\"projectName\":\"" + build.getBuildType().getProjectName() + "\"," +
-                                "\"name\":\"" + build.getBuildTypeName() + "\"" +
+                                "\"projectName\":\"" + escape(build.getBuildType().getProjectName()) + "\"," +
+                                "\"name\":\"" + escape(build.getBuildTypeName()) + "\"" +
                             "}," +
                             "\"agent\":{" +
                                 "\"name\":\"" + build.getAgentName() + "\"" +
                             "}," +
-                            "\"statusText\":\"" + build.getStatusDescriptor().getText().replace("\"", "\\\"") + "\"," +
-                            "\"status\":\"" + build.getStatusDescriptor().getStatus().getText() + "\"," +
+                            "\"statusText\":\"" + escape(build.getStatusDescriptor().getText()) + "\"," +
+                            "\"status\":\"" + escape(build.getStatusDescriptor().getStatus().getText()) + "\"," +
                             "\"state\":\"running\"" +
                         "}";
             }
@@ -36,8 +37,8 @@ public class BuildUpdateMessage {
                 return
                         "{" +
                             "\"id\":" + build.getBuildId() + "," +
-                            "\"statusText\":\"" + build.getStatusDescriptor().getText().replace("\"", "\\\"") + "\"," +
-                            "\"status\":\"" + build.getStatusDescriptor().getStatus().getText() + "\"," +
+                            "\"statusText\":\"" + escape(build.getStatusDescriptor().getText()) + "\"," +
+                            "\"status\":\"" + escape(build.getStatusDescriptor().getStatus().getText()) + "\"," +
                             "\"finishDate\":\"" + formatDate(new Date()) + "\"," +
                             "\"state\":\"finished\"" +
                         "}";
@@ -50,8 +51,8 @@ public class BuildUpdateMessage {
                 return
                         "{" +
                             "\"id\":" + build.getBuildId() + "," +
-                            "\"statusText\":\"" + build.getStatusDescriptor().getText().replace("\"", "\\\"") + "\"," +
-                            "\"status\":\"" + build.getStatusDescriptor().getStatus().getText() + "\"," +
+                            "\"statusText\":\"" + escape(build.getStatusDescriptor().getText()) + "\"," +
+                            "\"status\":\"" + escape(build.getStatusDescriptor().getStatus().getText()) + "\"," +
                             "\"state\":\"running\"" +
                         "}";
             }
@@ -61,6 +62,14 @@ public class BuildUpdateMessage {
 
         String formatDate(Date date) {
             return new SimpleDateFormat("YYYYMMdd'T'HHmmssZ").format(date);
+        }
+
+        String escape(String str) {
+            try {
+                return StringEscapeUtils.escapeJavaScript(str);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
