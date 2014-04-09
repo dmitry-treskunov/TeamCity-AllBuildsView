@@ -5,4 +5,5 @@
 
     <bean class="org.jetbrains.teamcity.plugins.allbuilds.BuildUpdatesHandler"/>
     <bean class="org.jetbrains.teamcity.plugins.allbuilds.AtmosphereController"/>
+    <bean class="org.jetbrains.teamcity.plugins.allbuilds.BuildUpdateMessageSerializer"/>
 </beans>

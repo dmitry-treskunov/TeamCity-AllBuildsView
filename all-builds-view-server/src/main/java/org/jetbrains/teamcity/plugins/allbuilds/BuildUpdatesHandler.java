@@ -19,7 +19,10 @@ import static org.jetbrains.teamcity.plugins.allbuilds.BuildUpdateMessage.Update
 
 public class BuildUpdatesHandler extends AbstractReflectorAtmosphereHandler {
 
-    public BuildUpdatesHandler(final EventDispatcher<BuildServerListener> dispatcher) {
+    private final BuildUpdateMessageSerializer serializer;
+
+    public BuildUpdatesHandler(final EventDispatcher<BuildServerListener> dispatcher, BuildUpdateMessageSerializer serializer) {
+        this.serializer = serializer;
         dispatcher.addListener(new BuildsNotificationsListener());
     }
 
@@ -28,6 +31,7 @@ public class BuildUpdatesHandler extends AbstractReflectorAtmosphereHandler {
         AtmosphereRequest req = atmosphereResource.getRequest();
         if (req.getMethod().equalsIgnoreCase("GET")) {
             Broadcaster broadcaster = getBroadcaster(true);
+            atmosphereResource.setSerializer(serializer);
             atmosphereResource.setBroadcaster(broadcaster);
         }
     }
