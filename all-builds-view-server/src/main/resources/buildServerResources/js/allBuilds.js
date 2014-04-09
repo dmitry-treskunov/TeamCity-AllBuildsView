@@ -38,6 +38,7 @@
             contentType: "application/json",
             logLevel: 'debug',
             shared: true,
+            trackMessageLength : true,
             transport: "websocket",
             fallbackTransport: 'long-polling'
         };
