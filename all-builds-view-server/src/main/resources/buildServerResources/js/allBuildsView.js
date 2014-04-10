@@ -32,11 +32,23 @@ var allBuildsView = function () {
         return moment(date, "YYYYMMDDThhmmss Z").format("DD MMM YY hh:mm");
     }
 
-    function createFinishDateText(build) {
+    function createDurationText(build) {
         if (build.finishDate) {
-            return formatDate(build.finishDate);
+            var diff = moment(build.finishDate, "YYYYMMDDThhmmss Z").diff(moment(build.startDate, "YYYYMMDDThhmmss Z"));
+            var duration = moment.duration(diff);
+            var message = "";
+            if (duration.hours() > 0) {
+                message += duration.hours() + "h "
+            }
+            if (duration.minutes() > 0) {
+                message += duration.minutes() + "m "
+            }
+            if (duration.seconds() > 0) {
+                message += duration.seconds() + "s"
+            }
+            return message;
         } else {
-            return "Not finished yet";
+            return "";
         }
     }
 
@@ -53,7 +65,7 @@ var allBuildsView = function () {
 
         $j('<td></td>').text(formatDate(build.startDate)).appendTo(row);
 
-        $j('<td></td>').text(createFinishDateText(build)).attr({id: 'buildFinishDate_' + build.id}).appendTo(row);
+        $j('<td></td>').text(createDurationText(build)).attr({id: 'buildFinishDate_' + build.id}).appendTo(row);
 
         var buildLink = $j('<a></a>').
             text(build.statusText).
@@ -96,7 +108,7 @@ var allBuildsView = function () {
 
         showBuildFinished: function (build) {
             this.changeBuildStatus(build);
-            $j("#buildFinishDate_" + build.id).text(createFinishDateText(build));
+            $j("#buildFinishDate_" + build.id).text(createDurationText(build));
         },
 
         removeLastRow: function () {

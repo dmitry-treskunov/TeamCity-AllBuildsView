@@ -13,7 +13,7 @@
             <th>Build Configuration</th>
             <th>Agent</th>
             <th>Start Date</th>
-            <th>Finish Date</th>
+            <th>Duration</th>
             <th>Status</th>
         </tr>
         </thead>
