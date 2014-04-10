@@ -28,13 +28,9 @@ var allBuildsView = function () {
         });
     }
 
-    function formatDate(date) {
-        return moment(date, "YYYYMMDDThhmmss Z").format("DD MMM YY hh:mm");
-    }
-
     function createDurationText(build) {
         if (build.finishDate) {
-            var diff = moment(build.finishDate, "YYYYMMDDThhmmss Z").diff(moment(build.startDate, "YYYYMMDDThhmmss Z"));
+            var diff = parseDateFromServer(build.finishDate).diff(parseDateFromServer(build.startDate));
             var duration = moment.duration(diff);
             var message = "";
             if (duration.hours() > 0) {
@@ -52,8 +48,16 @@ var allBuildsView = function () {
         }
     }
 
+    function parseDateFromServer(dateStr) {
+        return moment(dateStr, "YYYYMMDDThhmmss Z");
+    }
+
+    function formatDate(dateStr) {
+        return parseDateFromServer(dateStr).format("DD MMM YY hh:mm");
+    }
+
     function createBuildRow(build) {
-        var row = $j('<tr></tr>').attr({ id: 'build_' + build.id});
+        var row = $j('<tr></tr>');
         $j('<td></td>').text('#' + build.number).appendTo(row);
 
         var projectLink = $j('<a></a>').text(build.buildType.projectName).attr( {href: window['base_uri'] + '/project.html?projectId=' + build.buildType.projectId });
@@ -61,20 +65,19 @@ var allBuildsView = function () {
         $j('<td></td>').append(projectLink).append(' :: ').append(buildTypeLink).appendTo(row);
 
         var agentLink = $j('<a></a>').text(build.agent.name).attr( {href: window['base_uri'] + '/agentDetails.html?agentTypeId=' + build.agent.typeId + '&id=' + build.agent.typeId });
-        $j('<td></td>').prepend(agentLink).appendTo(row);
+        $j('<td></td>').append(agentLink).appendTo(row);
 
         $j('<td></td>').text(formatDate(build.startDate)).appendTo(row);
 
-        $j('<td></td>').text(createDurationText(build)).attr({id: 'buildFinishDate_' + build.id}).appendTo(row);
+        $j('<td></td>').text(createDurationText(build)).attr({id: 'buildDuration_' + build.id}).appendTo(row);
 
+        var buildStatusText = $j('<span></span>').text(build.statusText).attr({id: 'buildStatusText_' + build.id });
+        var buildStatusIcon = $j('<span></span>').append(createBuildsStatusIcon(build)).attr({id: 'buildStatusIcon_' + build.id});
         var buildLink = $j('<a></a>').
-            text(build.statusText).
-            attr( {
-                href: window['base_uri'] + '/viewLog.html?buildId=' + build.id + '&buildTypeId=' + build.buildType.id ,
-                id: 'buildStatus_' + build.id
-            }).
-            prepend(createBuildsStatusIcon(build));
-        $j('<td></td>').prepend(buildLink).appendTo(row);
+            attr({ href: window['base_uri'] + '/viewLog.html?buildId=' + build.id + '&buildTypeId=' + build.buildType.id }).
+            append(buildStatusIcon).
+            append(buildStatusText);
+        $j('<td></td>').append(buildLink).appendTo(row);
 
         return row;
     }
@@ -103,12 +106,15 @@ var allBuildsView = function () {
         },
 
         changeBuildStatus: function (build) {
-            $j("#buildStatus_" + build.id).text(build.statusText).prepend(createBuildsStatusIcon(build));
+            $j("#buildStatusIcon_" + build.id).html(createBuildsStatusIcon(build));
         },
 
-        showBuildFinished: function (build) {
-            this.changeBuildStatus(build);
-            $j("#buildFinishDate_" + build.id).text(createDurationText(build));
+        changeBuildStatusText: function (build) {
+            $j("#buildStatusText_" + build.id).text(build.statusText);
+        },
+
+        displayBuildDuration: function (build) {
+            $j("#buildDuration_" + build.id).text(createDurationText(build));
         },
 
         removeLastRow: function () {

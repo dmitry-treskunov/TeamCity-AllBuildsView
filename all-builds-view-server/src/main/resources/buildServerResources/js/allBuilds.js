@@ -1,20 +1,32 @@
 (function () {
     var view = allBuildsView();
     var buildsPerPage = 50;
-    var shownBuildsCount = 0;
+    var builds = [];
 
     $j(document).ready(function () {
 
+        /**
+         * Not optimal for now
+         */
+        function getBuildById(id) {
+            for (var i = 0; i < builds.length; i++) {
+                if (builds[i].id === id){
+                    return builds[i];
+                }
+            }
+        }
+
         function loadCurrentBuilds() {
             function processLoadedBuilds(response) {
-                if (response.count == 0) {
+                if (response.count === 0) {
                     view.displayNoBuildsFound();
                 } else {
-                    shownBuildsCount = response.count;
-                    view.displayShownBuildsCount(shownBuildsCount);
                     for (var i = 0; i < response.count; i++) {
-                        view.insertToTheEndOfTable(response.build[i]);
+                        var build = response.build[i];
+                        builds.push(build);
+                        view.insertToTheEndOfTable(build);
                     }
+                    view.displayShownBuildsCount(builds.length);
                 }
             }
 
@@ -24,13 +36,32 @@
         }
 
         function processNewBuild(build) {
-            if (shownBuildsCount >= buildsPerPage) {
+            builds.unshift(build);
+            if (builds.length >= buildsPerPage) {
+                builds.pop();
                 view.removeLastRow();
-            } else {
-                shownBuildsCount++;
             }
-            view.displayShownBuildsCount(shownBuildsCount);
+            view.displayShownBuildsCount(builds.length);
             view.insertToTheTopOfTable(build);
+        }
+
+        function processBuildUpdate(message) {
+            var build = getBuildById(message.build.id);
+            if (build) {
+                if (build.status !== message.build.status || build.state !== message.build.state) {
+                    build.status = message.build.status;
+                    build.state = message.build.state;
+                    view.changeBuildStatus(build);
+                }
+                if (build.statusText !== message.build.statusText) {
+                    build.statusText = message.build.statusText;
+                    view.changeBuildStatusText(build);
+                }
+                if (message.type === 'FINISHED'){
+                    build.finishDate = message.build.finishDate;
+                    view.displayBuildDuration(build);
+                }
+            }
         }
 
         var atmosphereRequest = {
@@ -53,10 +84,8 @@
             var message = JSON.parse(response.responseBody);
             if (message.type === 'STARTED') {
                 processNewBuild(message.build);
-            } else if (message.type === 'UPDATED') {
-                view.changeBuildStatus(message.build);
-            } else if (message.type === 'FINISHED') {
-                view.showBuildFinished(message.build);
+            } else {
+                processBuildUpdate(message);
             }
         };
 
