@@ -32,6 +32,9 @@ var allBuildsView = function () {
         if (build.finishDate) {
             var diff = parseDateFromServer(build.finishDate).diff(parseDateFromServer(build.startDate));
             var duration = moment.duration(diff);
+            if (duration.asSeconds() === 0) {
+                return '< 1s';
+            }
             var message = "";
             if (duration.hours() > 0) {
                 message += duration.hours() + "h "
