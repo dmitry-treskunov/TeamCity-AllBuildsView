@@ -1,5 +1,6 @@
 package org.jetbrains.teamcity.plugins.allbuilds;
 
+import jetbrains.buildServer.StatusDescriptor;
 import jetbrains.buildServer.messages.BuildMessage1;
 import jetbrains.buildServer.messages.Status;
 import jetbrains.buildServer.serverSide.BuildServerAdapter;
@@ -11,6 +12,8 @@ import org.atmosphere.handler.AbstractReflectorAtmosphereHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.jetbrains.teamcity.plugins.allbuilds.BuildUpdateMessage.UpdateType;
 
@@ -41,6 +44,9 @@ public class BuildUpdatesHandler extends AbstractReflectorAtmosphereHandler {
     }
 
     private class BuildsNotificationsListener extends BuildServerAdapter {
+
+        private Map<SRunningBuild, StatusDescriptor> currentBuildStatuses = new ConcurrentHashMap<SRunningBuild, StatusDescriptor>();
+
         @Override
         public void buildStarted(@NotNull SRunningBuild build) {
             broadcast(new BuildUpdateMessage(UpdateType.STARTED, build));
@@ -51,9 +57,18 @@ public class BuildUpdatesHandler extends AbstractReflectorAtmosphereHandler {
             broadcast(new BuildUpdateMessage(UpdateType.UPDATED, build));
         }
 
+        /**
+         * This method invocation doesn't mean that build status was updated,
+         * but it's the only signal that we can use to detect such updates.
+         */
         @Override
         public void messageReceived(@NotNull SRunningBuild build, @NotNull BuildMessage1 message) {
-            broadcast(new BuildUpdateMessage(UpdateType.UPDATED, build));
+            StatusDescriptor newDescriptor = build.getStatusDescriptor();
+            StatusDescriptor currentDescriptor = currentBuildStatuses.get(build);
+            if (currentDescriptor == null || !currentDescriptor.equals(newDescriptor)) {
+                currentBuildStatuses.put(build, newDescriptor);
+                broadcast(new BuildUpdateMessage(UpdateType.UPDATED, build));
+            }
         }
 
         @Override
