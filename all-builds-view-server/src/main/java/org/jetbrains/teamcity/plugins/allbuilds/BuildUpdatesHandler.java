@@ -32,9 +32,9 @@ public class BuildUpdatesHandler extends AbstractReflectorAtmosphereHandler {
         if (req.getMethod().equalsIgnoreCase("GET")) {
             atmosphereResource.setSerializer(serializer);
             if (atmosphereResource.transport() == AtmosphereResource.TRANSPORT.WEBSOCKET) {
-                BroadcasterFactory.getDefault().lookup("/buildsUpdates/ws").addAtmosphereResource(atmosphereResource);
+                atmosphereResource.setBroadcaster(BroadcasterFactory.getDefault().lookup("/buildsUpdates/ws"));
             } else if (atmosphereResource.transport() == AtmosphereResource.TRANSPORT.LONG_POLLING) {
-                BroadcasterFactory.getDefault().lookup("/buildsUpdates/polling").addAtmosphereResource(atmosphereResource);
+                atmosphereResource.setBroadcaster(BroadcasterFactory.getDefault().lookup("/buildsUpdates/polling"));
             }
         }
     }
