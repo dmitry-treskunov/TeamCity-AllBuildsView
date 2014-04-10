@@ -80,7 +80,6 @@
         };
 
         atmosphereRequest.onMessage = function (response) {
-            console.log(response.responseBody);
             var message = JSON.parse(response.responseBody);
             if (message.type === 'STARTED') {
                 processNewBuild(message.build);
