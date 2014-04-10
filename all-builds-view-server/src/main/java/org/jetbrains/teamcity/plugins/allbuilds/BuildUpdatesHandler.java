@@ -6,10 +6,7 @@ import jetbrains.buildServer.serverSide.BuildServerAdapter;
 import jetbrains.buildServer.serverSide.BuildServerListener;
 import jetbrains.buildServer.serverSide.SRunningBuild;
 import jetbrains.buildServer.util.EventDispatcher;
-import org.atmosphere.cpr.AtmosphereRequest;
-import org.atmosphere.cpr.AtmosphereResource;
-import org.atmosphere.cpr.Broadcaster;
-import org.atmosphere.cpr.BroadcasterFactory;
+import org.atmosphere.cpr.*;
 import org.atmosphere.handler.AbstractReflectorAtmosphereHandler;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,9 +27,12 @@ public class BuildUpdatesHandler extends AbstractReflectorAtmosphereHandler {
     public void onRequest(AtmosphereResource atmosphereResource) throws IOException {
         AtmosphereRequest req = atmosphereResource.getRequest();
         if (req.getMethod().equalsIgnoreCase("GET")) {
-            Broadcaster broadcaster = getBroadcaster(true);
             atmosphereResource.setSerializer(serializer);
-            atmosphereResource.setBroadcaster(broadcaster);
+            if (atmosphereResource.transport() == AtmosphereResource.TRANSPORT.WEBSOCKET) {
+                BroadcasterFactory.getDefault().lookup("/buildsUpdates/ws").addAtmosphereResource(atmosphereResource);
+            } else if (atmosphereResource.transport() == AtmosphereResource.TRANSPORT.LONG_POLLING) {
+                BroadcasterFactory.getDefault().lookup("/buildsUpdates/polling").addAtmosphereResource(atmosphereResource);
+            }
         }
     }
 
@@ -67,14 +67,7 @@ public class BuildUpdatesHandler extends AbstractReflectorAtmosphereHandler {
         }
 
         private void broadcast(BuildUpdateMessage message) {
-            Broadcaster broadcaster = getBroadcaster(false);
-            if (broadcaster != null) {
-                broadcaster.broadcast(message);
-            }
+            MetaBroadcaster.getDefault().broadcastTo("/buildsUpdates/*", message);
         }
-    }
-
-    private Broadcaster getBroadcaster(boolean createIfNull) {
-        return BroadcasterFactory.getDefault().lookup("buildsUpdates", createIfNull);
     }
 }
