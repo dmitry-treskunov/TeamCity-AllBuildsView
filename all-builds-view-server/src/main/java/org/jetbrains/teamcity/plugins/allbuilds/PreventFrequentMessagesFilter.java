@@ -11,7 +11,7 @@ public class PreventFrequentMessagesFilter implements BroadcastFilter {
     private AtomicLong lastBroadcastTime = new AtomicLong();
 
     @Override
-    public BroadcastAction filter(Object originalMessage, Object message) {
+    public BroadcastAction filter(String broadcasterId, Object originalMessage, Object message) {
         if (message instanceof BuildUpdateMessage) {
             if (((BuildUpdateMessage) message).getType() == BuildUpdateMessage.UpdateType.UPDATED) {
                 if (System.currentTimeMillis() - lastBroadcastTime.get() > UPDATE_MESSAGES_INTERVAL) {
